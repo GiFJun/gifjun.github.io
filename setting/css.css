@@ -8,13 +8,12 @@ hr{
     color:rgb(197, 197, 197);
 }
 
-.container{
-    border:rgb(104, 104, 104);
-    border-style:solid;
-    border-radius:10px;
+.list{
+    border-color:rgb(104, 104, 104);
+    border-style:none none none solid;
     padding:5px;
-    border-width: 1px;
-    
+    border-width: 10px;
+    background-color: rgb(224, 224, 224);
 }
 
 .wrap{
