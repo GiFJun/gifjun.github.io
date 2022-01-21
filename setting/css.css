@@ -1,3 +1,31 @@
 body{
+    
+}
 
+
+hr{
+    align-self: flex-start;
+    color:rgb(197, 197, 197);
+}
+
+.container{
+    border:rgb(104, 104, 104);
+    border-style:solid;
+    border-radius:10px;
+    padding:5px;
+    border-width: 1px;
+    
+}
+
+.wrap{
+    background-color: black;
+    color: #ffff;
+}
+
+big{
+    font-size: larger;
+}
+
+ul{
+    list-style-type:circle;;
 }
