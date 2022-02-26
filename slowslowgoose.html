@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>呆呆鹅生日快乐！！！</title>
+    <style>
+        div {
+            background-color: rgb(233, 225, 213);
+            margin: 5px;
+            padding: 5px;
+        }
+        h1 {
+            text-align: center;
+            size: 1.5em;
+        }
+        small {
+            color: gray;
+        }
+        input[type="submit"]{
+            width: 100px;
+            height: 30px;
+            position: relative;
+            left: 50px;
+            bottom: 10px;
+            margin:30px;
+            
+        }
+        input[id="form-one"]{
+            position: relative;
+            left: 80px;
+        }
+        section[class="papper"]{
+            background-color: pink;
+        }
+        section[class="teleporter"]{
+            background-image: url("bump.gif");
+            width: 347px;
+            height: 367px;
+        }
+        
+    </style>
+</head>
+
+<body>
+<div id="one">
+    <section class="papper">
+        <h1>烧鹅社区街道办告示</h1>
+        <p>烧鹅社区的各位烧鹅，烤鹅，水煮鹅，蒸鹅，卤鹅，炖鹅，蒸鹅蛋，炒鹅蛋，生鹅蛋：</p>
+        <p>&emsp;&emsp;每一只经过整整5844天炙烤，外酥里嫩，肥美多汁的烧鹅都要经历酸梅酱的洗礼。</p>
+        <p>&emsp;&emsp;但是非常不幸，酸梅酱被深井冰封印在了地底，为了得到酸梅酱，勇敢的呆呆鹅必须通过巧克力超人的考验，得到解开封印的钥匙。</p>
+        <p>2022年2月27日</p>
+        <p>烧鹅社区街道办事处</p>
+    </section>
+    <section class="teleporter">
+        <p>下面这个是巧克力超人留下的魔法阵，只有真正的呆呆鹅才能触发。如果你就是那位勇敢的呆呆鹅，就请回答魔法阵问题吧。</p>
+
+        <form action="Function()">
+            <p>Q：巧克力超人的钥匙到底是什么呢？</p>
+        <br/>
+            <p><small>提示：2月14日聊天记录，三个字，最后一个字请写成错别字</small></p>
+            <p><input id="form-one" placeholder="这不是嘴，在这里输入答案" name="one"></p>
+            <p><input type="button" value="启动魔法阵" onclick="Function()"/></p>
+        </form>
+    </section>
+</div>
+
+</body>
+
+</html>
