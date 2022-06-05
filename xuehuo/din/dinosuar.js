@@ -201,11 +201,11 @@ G.F.leftClickAI = function(){
     var b = G.O.bullet;
     if(this.tagContainsMouseClick() && !b.S.firing){
         b.S.firing = 1;
-        console.log("click2");
+        //console.log(b.S.firing);
     }
-    if(this.tagContainsMouseClick()){
-        console.log("click2");
-    }
+    // if(this.tagContainsMouseClick()){
+    //     console.log("click2");
+    // }
     
 }
 G.F.random = function(){
@@ -223,13 +223,13 @@ G.F.bulletAI = function(){
         }
         else{
             this.setVar({x:this.x+5})
+                .turnOn()
                 .draw();
         }
     }
     else{
         if(G.KB.F.isPressed){
             this.S.firing = 1;
-            this.turnOn();
         }
         else{
             this.setVar({x:G.O.dinosuar.x+10,y:G.O.dinosuar.y})
