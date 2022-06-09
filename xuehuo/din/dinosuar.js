@@ -4,10 +4,10 @@ G.F.loadMain = function(){
 
     G.KB.addKeys("UP","F");
 
-    G.setState({barrierInterval:130, speed:6, jumpSpeed:10, baseInterval:10,on:1});
+    G.setState({barrierInterval:130, speed:6, jumpSpeed:10, baseInterval:10,on:0,w:500,h:400});
 
     G.makeGob('viewport',G)
-        .setVar({x:50, y:50, w:500, h: 400})
+        .setVar({x:50, y:50, w:G.S.w, h: G.S.h})
         .setStyle({backgroundColor:"#FFF000"})
         .turnOn();
 
@@ -15,7 +15,7 @@ G.F.loadMain = function(){
     .setVar({x:50,y:320,w:15,h:5,AI:G.F.bulletAI})
     .setStyle({backgroundColor:"#FFFFFF"})
     .setState({firing:0})
-    .turnOn();
+    .turnOff();
 
     G.makeGob('dinosuar',G.O.viewport,"IMG")
         .setVar({x:50, y:320, w:40, h:50,AI:G.F.dinosuarAI})
@@ -30,11 +30,11 @@ G.F.loadMain = function(){
         .turnOn();
     
     G.makeGob('rightClick',G.O.viewport)
-        .setVar({x:0,y:0,w:250,h:400,AI:G.F.rightClickAI})
+        .setVar({x:0,y:0,w:G.S.w/3,h:400,AI:G.F.rightClickAI})
         .turnOn();
 
     G.makeGob("leftClick",G.O.viewport)
-    .setVar({x:250,y:0,w:250,h:400,AI:G.F.leftClickAI})
+    .setVar({x:250,y:G.S.w*2/3,w:G.S.w/3,h:400,AI:G.F.leftClickAI})
     .turnOn();
 
     //define a class to handle barriers
@@ -48,17 +48,25 @@ G.F.loadMain = function(){
     
     G.makeGob('scoreBoard',G.O.viewport)
         .setVar({x:50, y:0,w:200,h:60,AI:G.F.scoreBoardAI})
-        .setSrc('Score:')
+        .setSrc('SCORE:')
         .setState({msg:"SCORE:",score:0})
         .setStyle({color:"#000000"})
         .turnOn()
     
     G.makeGob('target',G.O.viewport,"IMG")
-        .setVar({x:300,y:170,w:20,h:60,AI:G.F.targetAI})
+        .setVar({x:G.S.w*5/6,y:170,w:20,h:60,AI:G.F.targetAI})
         .setSrc('target.png')
+        .turnOn();
+
+       
+    G.makeGob('startButton',G.O.viewport)
+        .setVar({x:G.S.w/3,y:G.S.h/3,w:G.S.w/3,h:G.S.h/6,AI:G.F.startButtonAI})
+        .setStyle({backgroundColor:'#000000',color:'#FFFFFF', textAlign:'center',fontSize:"2em",paddingTop:"5%"})
+        .setSrc('START')
         .turnOn();
 }
 G.F.mainAI = function(){
+        G.O.startButton.AI();
     if (G.S.on){
         //move dinosuar
         G.O.dinosuar.AI();
@@ -169,8 +177,9 @@ G.F.barrierAI = function() {//move or delete
     }
 
     if(this.checkIntersection(G.O.dinosuar)){
-        window.alert("game over,flash to try again");
         G.S.on = 0;
+        G.O.startButton.turnOn().draw();
+        
     }
     return t
 }
@@ -178,7 +187,7 @@ G.F.makeBarrier = function(){
     var id = 'barrier'+this.idCount;
 
     var barrier = G.makeGob(id,G.O.viewport,'IMG')
-         .setVar({x:490, y:340, w:30, h:30, AI:G.F.barrierAI})
+         .setVar({x:490, y:350, w:20, h:20, AI:G.F.barrierAI})
          .setState({delete:0})
          .setSrc('barrier.bmp')
          .setStyle({margin:0})
@@ -259,5 +268,35 @@ G.F.targetRadom = function(){
     var x = (Math.random())*100+150;
     return x
 }
+G.F.startButtonAI = function(){
+    var t = this;
+    if(t.tagContainsMouseClick()){
+        G.S.on = 1;
+        G.F.reset();
+        t.turnOff().draw();
+        
+    }
+}
+G.F.reset = function(){
+    G.O.scoreBoard.S.score = 0;
+    G.O.target.setVar({x:G.S.w*5/6,y:170,w:20,h:60});
+    G.O.startButton.turnOn();
+    G.O.dinosuar.setVar({x:50, y:320, w:40, h:50})
+    .draw()
+    .setState({jump:0, down:0});
+    for (var i=0; i < G.O.Barriers.barrierList.length;i++){
+        var barrier = G.O.Barriers.barrierList[i];
+        if(barrier){barrier.turnOff().draw();
+            delete G.O.Barriers.barrierList[i];
+            delete G.O[barrier.id];}
+        
+        }
+    G.O.Barriers = {
+        count: 0,
+        idCount: 0,
+        barrierList: [],
+        makeBarrier: G.F.makeBarrier,
+        AI:G.F.BarriersAI
+    }
+}
 G.makeBlock('main',G.F.loadMain).loadBlock('main');
-
