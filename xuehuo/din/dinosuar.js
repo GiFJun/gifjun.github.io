@@ -8,7 +8,7 @@ G.F.loadMain = function(){
 
     G.makeGob('viewport',G)
         .setVar({x:50, y:50, w:G.S.w, h: G.S.h})
-        .setStyle({backgroundColor:"#FFF000"})
+        .setStyle({backgroundColor:"#EEEEEE",border:"dashed"})
         .turnOn();
 
     G.makeGob('bullet',G.O.viewport)
@@ -26,7 +26,7 @@ G.F.loadMain = function(){
     
     G.makeGob('floor',G.O.viewport)
         .setVar({x:0, y:370, h:5, w:500})
-        .setStyle({backgroundColor:"#333999"})
+        .setStyle({backgroundColor:"#000000",border:'dashed'})
         .turnOn();
     
     G.makeGob('rightClick',G.O.viewport)
