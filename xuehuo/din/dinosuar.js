@@ -279,7 +279,7 @@ G.F.startButtonAI = function(){
 }
 G.F.reset = function(){
     G.O.scoreBoard.S.score = 0;
-    G.O.target.setVar({x:G.S.w*5/6,y:170,w:20,h:60});
+    G.O.target.setVar({x:G.S.w*5/6,y:170,w:20,h:60}).draw();
     G.O.startButton.turnOn();
     G.O.dinosuar.setVar({x:50, y:320, w:40, h:50})
     .draw()
