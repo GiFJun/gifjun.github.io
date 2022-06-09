@@ -34,7 +34,7 @@ G.F.loadMain = function(){
         .turnOn();
 
     G.makeGob("leftClick",G.O.viewport)
-    .setVar({x:250,y:G.S.w*2/3,w:G.S.w/3,h:400,AI:G.F.leftClickAI})
+    .setVar({x:G.S.w*2/3,y:0,w:G.S.w/3,h:400,AI:G.F.leftClickAI})
     .turnOn();
 
     //define a class to handle barriers
