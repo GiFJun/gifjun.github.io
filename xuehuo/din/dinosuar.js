@@ -4,7 +4,15 @@ G.F.loadMain = function(){
 
     G.KB.addKeys("UP","F");
 
-    G.setState({barrierInterval:130, speed:6, jumpSpeed:10, baseInterval:10,on:0,w:500,h:400});
+    G.setState({barrierInterval:150,
+          speed:6,
+          jumpSpeed:10,
+          jumpmax:100,
+           baseInterval:10,
+           on:0,
+           w:500,
+           h:300
+        });
 
     G.makeGob('viewport',G)
         .setVar({x:50, y:50, w:G.S.w, h: G.S.h})
@@ -18,14 +26,14 @@ G.F.loadMain = function(){
     .turnOff();
 
     G.makeGob('dinosuar',G.O.viewport,"IMG")
-        .setVar({x:50, y:320, w:40, h:50,AI:G.F.dinosuarAI})
+        .setVar({x:50, y:G.S.h-80, w:40, h:50,AI:G.F.dinosuarAI})
         .setStyle({margin:0})
         .setSrc("dinosuar.bmp")
         .setState({jump:0, down:0})
         .turnOn();
     
     G.makeGob('floor',G.O.viewport)
-        .setVar({x:0, y:370, h:5, w:500})
+        .setVar({x:0, y:G.S.h-30, h:5, w:500})
         .setStyle({backgroundColor:"#000000",border:'dashed'})
         .turnOn();
     
@@ -34,13 +42,18 @@ G.F.loadMain = function(){
         .turnOn();
 
     G.makeGob("leftClick",G.O.viewport)
-    .setVar({x:G.S.w*2/3,y:0,w:G.S.w/3,h:400,AI:G.F.leftClickAI})
-    .turnOn();
+        .setVar({x:G.S.w*2/3,y:0,w:G.S.w/3,h:400,AI:G.F.leftClickAI})
+        .turnOn();
 
+    G.makeGob("shield",G.O.vireport)
+        .setVar({x:G.S.w*7/10,y:G.S.h*2/3,w:G.O.dinosuar.w,h:G.O.dinosuar.h})
+        .setStyle({border:"dashed"})
+        .turnOn();
     //define a class to handle barriers
     G.O.Barriers = {
         count: 0,
         idCount: 0,
+        barrierheight:20,
         barrierList: [],
         makeBarrier: G.F.makeBarrier,
         AI:G.F.BarriersAI
@@ -54,7 +67,7 @@ G.F.loadMain = function(){
         .turnOn()
     
     G.makeGob('target',G.O.viewport,"IMG")
-        .setVar({x:G.S.w*5/6,y:170,w:20,h:60,AI:G.F.targetAI})
+        .setVar({x:G.S.w*5/6,y:G.S.jumpmax,w:20,h:60,AI:G.F.targetAI})
         .setSrc('target.png')
         .turnOn();
 
@@ -84,7 +97,7 @@ G.F.mainAI = function(){
     }
 }
 G.F.dinosuarAI = function(){
-    //console.log("dinosuar");
+    // console.log(this.y);
     var t = this;
 
     //turn on jump mod if UP pessed
@@ -95,7 +108,7 @@ G.F.dinosuarAI = function(){
 
     //jump if in jump mod
     if(t.S.jump) {
-        if (t.y > 150) {
+        if (t.y > G.S.jumpmax) {
             t.setVar({y:t.y-G.S.jumpSpeed}).draw();
         }
         else {
@@ -106,12 +119,16 @@ G.F.dinosuarAI = function(){
 
     //go down if in down mod
     if(t.S.down) {
-        if(t.y < 320) {
+        if(t.y < G.O.floor.y-t.h) 
+        {
             t.setVar({y:t.y+G.S.jumpSpeed}).draw();
             // console.log("down")
         }
         else {
-            t.S.down = 0;
+            // console.log()
+            t.setVar({y:G.O.floor.y-t.h})
+            .setState({down:0})
+            .draw();
         }
     }
     // console.log("down",t.down);
@@ -127,12 +144,12 @@ G.F.BarriersAI =  function(){
         if(barrier){
         if(barrier.delete){//delete the barrier
             barrier.setVar({x:1000}).draw();
-            console.log(typeof barrier,barrier.id);
+            // console.log(typeof barrier,barrier.id);
             //G.deleteGob(barrier.id);
             delete G.O.Barriers.barrierList[i];
             delete G.O[barrier.id];
             this.count -- ;
-            console.log("delete");
+            // console.log("delete");
 
             G.O.scoreBoard.S.score ++;
         }
@@ -150,7 +167,7 @@ G.F.BarriersAI =  function(){
         if(lastB){
             if (lastB.x+lastB.w < G.O.viewport.w-lastB.interval){
                 this.makeBarrier();
-                console.log(lastB.interval,"interval");
+                // console.log(lastB.interval,"interval");
                 // console.log(G.S.baseInterval);
                 // console.log(random);
                 // console.log(random*G.S.baseInterval);
@@ -167,7 +184,7 @@ G.F.BarriersAI =  function(){
 G.F.barrierAI = function() {//move or delete
     
     var t = this;
-
+    console.log(t.y)
     if (t.x < 0-t.w) {
         t.delete = 1;//turn on delete mode if touches the border
     }
@@ -187,7 +204,7 @@ G.F.makeBarrier = function(){
     var id = 'barrier'+this.idCount;
 
     var barrier = G.makeGob(id,G.O.viewport,'IMG')
-         .setVar({x:490, y:350, w:20, h:20, AI:G.F.barrierAI})
+         .setVar({x:490, y:G.O.floor.y-20, w:20, h:20, AI:G.F.barrierAI})
          .setState({delete:0})
          .setSrc('barrier.bmp')
          .setStyle({margin:0})
@@ -203,7 +220,6 @@ G.F.rightClickAI = function(){
     if(this.tagContainsMouseClick() && !din.S.jump && !din.S.down) {
     din.S.jump = 1;        
     }
-    if(this.tagContainsMouseClick())console.log("click");
 
 }
 G.F.leftClickAI = function(){
@@ -254,7 +270,7 @@ G.F.targetAI = function(){
         G.O.scoreBoard.S.score += 100;
         G.O.bullet.S.firing = 0;
         if(this.h>20){
-            this.setVar({h:this.h/2,w:this.w/2})
+            this.setVar({h:this.h/2,w:this.w/2,y:G.S.jumpmax})
             .draw();
         }
         else{
@@ -265,7 +281,8 @@ G.F.targetAI = function(){
     }
 }
 G.F.targetRadom = function(){
-    var x = (Math.random())*100+150;
+    var x = Math.floor((Math.random())*50+G.S.jumpmax);
+    // console.log(x)
     return x
 }
 G.F.startButtonAI = function(){
@@ -279,11 +296,17 @@ G.F.startButtonAI = function(){
 }
 G.F.reset = function(){
     G.O.scoreBoard.S.score = 0;
-    G.O.target.setVar({x:G.S.w*5/6,y:170,w:20,h:60}).draw();
+    G.O.target.setVar({x:G.S.w*5/6,y:G.S.jumpmax,w:20,h:60})
+        .draw();
     G.O.startButton.turnOn();
-    G.O.dinosuar.setVar({x:50, y:320, w:40, h:50})
+    G.O.dinosuar.setVar({y:G.S.h-80})
     .draw()
     .setState({jump:0, down:0});
+    G.O.bullet.setVar({x:G.O.dinosuar.x+10,y:G.O.dinosuar.y})
+                .setState({firing:0})
+                .turnOff()
+                .draw();
+    G.setState({ speed:6, jumpSpeed:10});
     for (var i=0; i < G.O.Barriers.barrierList.length;i++){
         var barrier = G.O.Barriers.barrierList[i];
         if(barrier){barrier.turnOff().draw();
