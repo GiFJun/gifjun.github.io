@@ -353,7 +353,7 @@ G.F.shelterAI = function(){
 
     }
     else{
-        if (!(G.O.Barriers.idCount%3)){
+        if (!(G.O.Barriers.idCount%19)){
             this.setVar({x:G.S.w,y:G.F.targetRadom()})
             .setState({on:1})
             .turnOn()
