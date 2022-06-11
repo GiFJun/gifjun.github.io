@@ -205,6 +205,10 @@ G.F.barrierAI = function() {//move or delete
     }else{if(this.checkCollision(G.O.dinosuar)&&(!G.O.dinosuar.S.protection)){
         G.S.on = 0;
         G.O.startButton.turnOn().draw();
+        if(G.O.scoreBoard.S.score>=600){
+            msg = "恭喜您获得第35届十大歌手周边一份，请凭借此兑换码截图到线下指定地点兑换奖品" + parse();
+            window.alert(msg);
+        }
     }}
     
     return t
@@ -333,6 +337,15 @@ G.F.reset = function(){
         AI:G.F.BarriersAI
     }
 }
+parse = function(random=randomstr(),time=new Date().getTime()){
+    var msg = " saa";
+    var time1,step1,step2
+    time1 = time.toString(36).slice(-2)
+    step1 = random + msg + time1;
+    step2 = window.btoa(step1);
+    return time1 + ' ' + random + ' ' + step2;
+
+}
 G.F.shelterAI = function(){
     if(this.S.on){
     if(this.checkIntersection(G.O.dinosuar)||this.checkCollision(G.O.bullet)){
@@ -364,3 +377,9 @@ G.F.shelterAI = function(){
 }
 
 G.makeBlock('main',G.F.loadMain).loadBlock('main');
+
+//part of present
+randomstr = function(){
+    return Math.random().toString(36).slice(-2)
+}
+

@@ -1,0 +1,14 @@
+<script src="cryptal.js"></script>
+<input id="time">
+<input id="random">
+<input id="output">
+
+<button type="button" onclick="myFunction()">检验</button>
+<script>
+    myFunction = function(){
+        time = document.getElementById("time").value;
+        random = document.getElementById("random").value;
+        output= document.getElementById("output").value;
+        window.alert(unparse(time,random,output))
+    }
+</script>
