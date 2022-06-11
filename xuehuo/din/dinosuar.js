@@ -29,7 +29,7 @@ G.F.loadMain = function(){
         .setVar({x:50, y:G.S.h-80, w:40, h:50,AI:G.F.dinosuarAI})
         .setStyle({margin:0})
         .setSrc("dinosuar.bmp")
-        .setState({jump:0, down:0})
+        .setState({jump:0, down:0,protection:0})
         .turnOn();
     
     G.makeGob('floor',G.O.viewport)
@@ -45,10 +45,6 @@ G.F.loadMain = function(){
         .setVar({x:G.S.w*2/3,y:0,w:G.S.w/3,h:400,AI:G.F.leftClickAI})
         .turnOn();
 
-    G.makeGob("shield",G.O.vireport)
-        .setVar({x:G.S.w*7/10,y:G.S.h*2/3,w:G.O.dinosuar.w,h:G.O.dinosuar.h})
-        .setStyle({border:"dashed"})
-        .turnOn();
     //define a class to handle barriers
     G.O.Barriers = {
         count: 0,
@@ -70,8 +66,11 @@ G.F.loadMain = function(){
         .setVar({x:G.S.w*5/6,y:G.S.jumpmax,w:20,h:60,AI:G.F.targetAI})
         .setSrc('target.png')
         .turnOn();
-
-       
+    G.makeGob("shelter",G.O.viewport)
+        .setVar({x:-100, y:G.S.h-150, w:40, h:50,AI:G.F.shelterAI})
+        .setState({on:0})
+        .setStyle({margin:0,border:"dashed"})
+        .turnOn();
     G.makeGob('startButton',G.O.viewport)
         .setVar({x:G.S.w/3,y:G.S.h/3,w:G.S.w/3,h:G.S.h/6,AI:G.F.startButtonAI})
         .setStyle({backgroundColor:'#000000',color:'#FFFFFF', textAlign:'center',fontSize:"2em",paddingTop:"5%"})
@@ -94,6 +93,9 @@ G.F.mainAI = function(){
         G.O.bullet.AI();
         //chcek target
         G.O.target.AI();
+        //move shelter
+        G.O.shelter.AI();
+
     }
 }
 G.F.dinosuarAI = function(){
@@ -130,9 +132,9 @@ G.F.dinosuarAI = function(){
             .setState({down:0})
             .draw();
         }
+        
     }
-    // console.log("down",t.down);
-    // console.log("jump",t.jump)
+    
     return t
 
 }
@@ -184,7 +186,7 @@ G.F.BarriersAI =  function(){
 G.F.barrierAI = function() {//move or delete
     
     var t = this;
-    console.log(t.y)
+    // console.log(t.y)
     if (t.x < 0-t.w) {
         t.delete = 1;//turn on delete mode if touches the border
     }
@@ -192,12 +194,19 @@ G.F.barrierAI = function() {//move or delete
         t.setVar({x:t.x - G.S.speed})// move the barrier if doesn't touch the border
             .draw();
     }
-
-    if(this.checkIntersection(G.O.dinosuar)){
+    if(this.checkIntersection(G.O.shelter)){
+        this.setVar({x:-100,y:-100})
+        .setState({delete:1})
+        .draw();
+        G.O.shelter.setVar({x:-100})
+        G.O.dinosuar.setState({protection:0});
+        
+        // console.log('hurt')
+    }else{if(this.checkCollision(G.O.dinosuar)&&(!G.O.dinosuar.S.protection)){
         G.S.on = 0;
         G.O.startButton.turnOn().draw();
-        
-    }
+    }}
+    
     return t
 }
 G.F.makeBarrier = function(){ 
@@ -298,15 +307,17 @@ G.F.reset = function(){
     G.O.scoreBoard.S.score = 0;
     G.O.target.setVar({x:G.S.w*5/6,y:G.S.jumpmax,w:20,h:60})
         .draw();
-    G.O.startButton.turnOn();
+
     G.O.dinosuar.setVar({y:G.S.h-80})
-    .draw()
-    .setState({jump:0, down:0});
+        .draw()
+        .setState({jump:0, down:0,proteciton:0});
     G.O.bullet.setVar({x:G.O.dinosuar.x+10,y:G.O.dinosuar.y})
                 .setState({firing:0})
                 .turnOff()
                 .draw();
+    G.O.shelter.setState({on:0}).turnOff();
     G.setState({ speed:6, jumpSpeed:10});
+    G.O.startButton.turnOn().draw();
     for (var i=0; i < G.O.Barriers.barrierList.length;i++){
         var barrier = G.O.Barriers.barrierList[i];
         if(barrier){barrier.turnOff().draw();
@@ -322,4 +333,34 @@ G.F.reset = function(){
         AI:G.F.BarriersAI
     }
 }
+G.F.shelterAI = function(){
+    if(this.S.on){
+    if(this.checkIntersection(G.O.dinosuar)||this.checkCollision(G.O.bullet)){
+        G.O.dinosuar
+            .setState({protection:1});
+        //this.setState({on:0});
+
+    }
+    else{this.setVar({x:this.x-5}).draw();}
+    if(G.O.dinosuar.S.protection){
+        this.setVar({x:G.O.dinosuar.x,y:G.O.dinosuar.y})
+            .draw()
+    }
+    if(this.x+this.w<0){
+        this.setState({on:0})
+            .turnOff();
+    }
+
+    }
+    else{
+        if (!(G.O.Barriers.idCount%3)){
+            this.setVar({x:G.S.w,y:G.F.targetRadom()})
+            .setState({on:1})
+            .turnOn()
+            .draw();
+        }
+    }
+    // console.log(G.O.Barriers.idCount,!(G.O.Barriers.idCount%3))
+}
+
 G.makeBlock('main',G.F.loadMain).loadBlock('main');
