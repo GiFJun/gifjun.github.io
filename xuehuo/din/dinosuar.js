@@ -199,6 +199,8 @@ G.F.barrierAI = function() {//move or delete
         .setState({delete:1})
         .draw();
         G.O.shelter.setVar({x:-100})
+            .setState({on:0})
+            .draw().turnOff();
         G.O.dinosuar.setState({protection:0});
         
         // console.log('hurt')
