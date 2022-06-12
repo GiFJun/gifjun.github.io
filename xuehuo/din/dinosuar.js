@@ -209,8 +209,8 @@ G.F.barrierAI = function() {//move or delete
     }else{if(this.checkCollision(G.O.dinosuar)&&(!G.O.dinosuar.S.protection)){
         G.S.on = 0;
         G.O.startButton.turnOn().draw();
-        if(G.O.scoreBoard.S.score>=600){
-            msg = "恭喜您获得第35届十大歌手周边一份，请凭借此兑换码截图到线下指定地点兑换奖品" + parse();
+        if(G.O.scoreBoard.S.score>=800){
+            msg = "恭喜您获得第35届十大歌手周边一份，请凭借此兑换码和分数截图到线下指定地点兑换奖品" + parse();
             window.alert(msg);
         }
     }}
