@@ -1,5 +1,7 @@
 G.F.loadMain = function(){
 
+    window.alert("手机用户在手机设置中打开自动旋转屏幕即可横屏体验游戏");
+
     this.AI = G.F.mainAI;
 
     G.KB.addKeys("UP","F");
