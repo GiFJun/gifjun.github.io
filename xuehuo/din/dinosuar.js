@@ -179,8 +179,8 @@ G.F.BarriersAI =  function(){
     else{this.makeBarrier()}
     }
     
-    G.S.speed *= 1.0001;
-    G.S.jumpSpeed *= 1.0001;
+    G.S.speed *= 1.001;
+    G.S.jumpSpeed *= 1.001;
 
     return this
     
