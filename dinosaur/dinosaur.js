@@ -1,12 +1,11 @@
-G.F.loadMain = function(){
+G.F.loadMain = function(){//initialize the game
 
-    window.alert("手机用户在手机设置中打开自动旋转屏幕即可横屏体验游戏");
-
+    window.alert("手机玩家在手机设置中打开自动旋转屏幕即可横屏体验游戏。\n电脑玩家可以用↑键起跳，F键开火");
+    window.alert("注意：本网页是原·SMS第35届校园十大歌手线上游戏，内容已于2022年8月23日更新,目前仅作为gifjun的个人项目展示");
     this.AI = G.F.mainAI;
-
     G.KB.addKeys("UP","F");
 
-    G.setState({barrierInterval:150,
+    G.setState({barrierInterval:150,//some state settings
           speed:6,
           jumpSpeed:10,
           jumpmax:100,
@@ -15,7 +14,8 @@ G.F.loadMain = function(){
            w:500,
            h:300
         });
-
+    
+    //initialize the fgame objects
     G.makeGob('viewport',G)
         .setVar({x:50, y:50, w:G.S.w, h: G.S.h})
         .setStyle({backgroundColor:"#EEEEEE",border:"dashed"})
@@ -27,10 +27,10 @@ G.F.loadMain = function(){
     .setState({firing:0})
     .turnOff();
 
-    G.makeGob('dinosuar',G.O.viewport,"IMG")
-        .setVar({x:50, y:G.S.h-80, w:40, h:50,AI:G.F.dinosuarAI})
+    G.makeGob('dinosaur',G.O.viewport,"IMG")
+        .setVar({x:50, y:G.S.h-80, w:40, h:50,AI:G.F.dinosaurAI})
         .setStyle({margin:0})
-        .setSrc("dinosuar.bmp")
+        .setSrc("dinosaur.bmp")
         .setState({jump:0, down:0,protection:0})
         .turnOn();
     
@@ -82,8 +82,8 @@ G.F.loadMain = function(){
 G.F.mainAI = function(){
         G.O.startButton.AI();
     if (G.S.on){
-        //move dinosuar
-        G.O.dinosuar.AI();
+        //move dinosaur
+        G.O.dinosaur.AI();
         //check mouse click
         G.O.rightClick.AI();
         G.O.leftClick.AI();
@@ -100,7 +100,7 @@ G.F.mainAI = function(){
 
     }
 }
-G.F.dinosuarAI = function(){
+G.F.dinosaurAI = function(){
     // console.log(this.y);
     var t = this;
 
@@ -146,22 +146,23 @@ G.F.BarriersAI =  function(){
     for (var i=0; i < this.barrierList.length;i++){
         var barrier = this.barrierList[i];
         if(barrier){
-        if(barrier.delete){//delete the barrier
-            barrier.setVar({x:1000}).draw();
-            // console.log(typeof barrier,barrier.id);
-            //G.deleteGob(barrier.id);
-            delete G.O.Barriers.barrierList[i];
-            delete G.O[barrier.id];
-            this.count -- ;
-            // console.log("delete");
+            if(barrier.delete){//delete the barrier when it goes out of the screen
+                barrier.setVar({x:1000}).draw();
+                // console.log(typeof barrier,barrier.id);
+                //G.deleteGob(barrier.id);
+                delete G.O.Barriers.barrierList[i];
+                delete G.O[barrier.id];
+                this.count -- ;
+                // console.log("delete");
 
-            G.O.scoreBoard.S.score ++;
+                G.O.scoreBoard.S.score ++;
+            }
+            else{barrier.AI();}//move it if nothing wrong with it
         }
-        else{barrier.AI();}}
         
     }
     // console.log(this.count);
-    // try to create new barriers
+    // create new barriers when there is no barrier
     if (!this.count){
         this.makeBarrier(); //create a barrier when there is no barrier
        
@@ -178,14 +179,14 @@ G.F.BarriersAI =  function(){
     }}
     else{this.makeBarrier()}
     }
-    
-    G.S.speed *= 1.001;
-    G.S.jumpSpeed *= 1.001;
+    //up the speed
+    G.S.speed *= 1.0001;
+    G.S.jumpSpeed *= 1.0001;
 
     return this
     
 }
-G.F.barrierAI = function() {//move or delete
+G.F.barrierAI = function() {//move or delete or over the game
     
     var t = this;
     // console.log(t.y)
@@ -203,14 +204,14 @@ G.F.barrierAI = function() {//move or delete
         G.O.shelter.setVar({x:-100})
             .setState({on:0})
             .draw().turnOff();
-        G.O.dinosuar.setState({protection:0});
+        G.O.dinosaur.setState({protection:0});
         
         // console.log('hurt')
-    }else{if(this.checkCollision(G.O.dinosuar)&&(!G.O.dinosuar.S.protection)){
+    }else{if(this.checkCollision(G.O.dinosaur)&&(!G.O.dinosaur.S.protection)){
         G.S.on = 0;
         G.O.startButton.turnOn().draw();
         if(G.O.scoreBoard.S.score>=800){
-            msg = "恭喜您获得第35届十大歌手周边一份，请凭借此兑换码和分数截图到线下指定地点兑换奖品" + parse();
+            msg = "游戏结束！哇塞！竟然得了这么多分！呆呆鹅看了都想鼓掌！";
             window.alert(msg);
         }
     }}
@@ -233,7 +234,7 @@ G.F.makeBarrier = function(){
     this.idCount ++;
 }
 G.F.rightClickAI = function(){
-    var din = G.O.dinosuar
+    var din = G.O.dinosaur
     if(this.tagContainsMouseClick() && !din.S.jump && !din.S.down) {
     din.S.jump = 1;        
     }
@@ -274,7 +275,7 @@ G.F.bulletAI = function(){
             this.S.firing = 1;
         }
         else{
-            this.setVar({x:G.O.dinosuar.x+10,y:G.O.dinosuar.y})
+            this.setVar({x:G.O.dinosaur.x+10,y:G.O.dinosaur.y})
                 .turnOff()
                 .draw();
         }
@@ -316,10 +317,10 @@ G.F.reset = function(){
     G.O.target.setVar({x:G.S.w*5/6,y:G.S.jumpmax,w:20,h:60})
         .draw();
 
-    G.O.dinosuar.setVar({y:G.S.h-80})
+    G.O.dinosaur.setVar({y:G.S.h-80})
         .draw()
         .setState({jump:0, down:0,proteciton:0});
-    G.O.bullet.setVar({x:G.O.dinosuar.x+10,y:G.O.dinosuar.y})
+    G.O.bullet.setVar({x:G.O.dinosaur.x+10,y:G.O.dinosaur.y})
                 .setState({firing:0})
                 .turnOff()
                 .draw();
@@ -341,26 +342,26 @@ G.F.reset = function(){
         AI:G.F.BarriersAI
     }
 }
-parse = function(random=randomstr(),time=new Date().getTime()){
-    var msg = " saa";
-    var time1,step1,step2
-    time1 = time.toString(36).slice(-2)
-    step1 = random + msg + time1;
-    step2 = window.btoa(step1);
-    return time1 + ' ' + random + ' ' + step2;
+// parse = function(random=randomstr(),time=new Date().getTime()){
+//     var msg = " saa";
+//     var time1,step1,step2
+//     time1 = time.toString(36).slice(-2)
+//     step1 = random + msg + time1;
+//     step2 = window.btoa(step1);
+//     return time1 + ' ' + random + ' ' + step2;
 
-}
+// }
 G.F.shelterAI = function(){
     if(this.S.on){
-    if(this.checkIntersection(G.O.dinosuar)||this.checkCollision(G.O.bullet)){
-        G.O.dinosuar
+    if(this.checkIntersection(G.O.dinosaur)||this.checkCollision(G.O.bullet)){
+        G.O.dinosaur
             .setState({protection:1});
         //this.setState({on:0});
 
     }
     else{this.setVar({x:this.x-5}).draw();}
-    if(G.O.dinosuar.S.protection){
-        this.setVar({x:G.O.dinosuar.x,y:G.O.dinosuar.y})
+    if(G.O.dinosaur.S.protection){
+        this.setVar({x:G.O.dinosaur.x,y:G.O.dinosaur.y})
             .draw()
     }
     if(this.x+this.w<0){
@@ -383,7 +384,6 @@ G.F.shelterAI = function(){
 G.makeBlock('main',G.F.loadMain).loadBlock('main');
 
 //part of present
-randomstr = function(){
-    return Math.random().toString(36).slice(-2)
-}
-
+// randomstr = function(){
+//     return Math.random().toString(36).slice(-2)
+// }
