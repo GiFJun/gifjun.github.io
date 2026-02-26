@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三阶魔方</title>
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1e1e2f;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        .card {
+            background: #28293d;
+            padding: 28px 28px 24px;
+            border-radius: 42px;
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.6);
+        }
+        canvas {
+            display: block;
+            width: 600px;
+            height: 400px;
+            border-radius: 28px;
+            background: #1a1b2c;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.8), 0 12px 20px -8px #0a0a14;
+            cursor: pointer;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 22px;
+            color: #b9b9d6;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #32324a;
+            padding: 5px 16px 5px 10px;
+            border-radius: 30px;
+        }
+        .color-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .dot-red { background: #f44336; }
+        .dot-blue { background: #2196f3; }
+        .dot-white { background: #ffffff; }
+        .dot-green { background: #4caf50; }
+        .dot-yellow { background: #ffeb3b; }
+        .dot-orange { background: #ff9800; }
+        .footer-note {
+            text-align: center;
+            margin-top: 18px;
+            color: #6f6f97;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <canvas id="matrixCanvas" width="600" height="400"></canvas>
+    <div class="legend">
+        <span class="legend-item"><i class="color-dot dot-red"></i> 0 红</span>
+        <span class="legend-item"><i class="color-dot dot-blue"></i> 1 蓝</span>
+        <span class="legend-item"><i class="color-dot dot-white"></i> 2 白</span>
+        <span class="legend-item"><i class="color-dot dot-green"></i> 3 绿</span>
+        <span class="legend-item"><i class="color-dot dot-yellow"></i> 4 黄</span>
+        <span class="legend-item"><i class="color-dot dot-orange"></i> 5 橙</span>
+    </div>
+    <div class="footer-note">点击大正方形 → 控制台输出编号k，并调用 Cube.rotation(k)</div>
+</div>
+<script src="./rotation.js"></script>
+    <script src="./cube.js"></script>
+<script type="module">
+    // ========== 尝试从 cube.js 导入 Cube 对象 ==========
+    // ========== 画布与绘制配置 ==========
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const BIG_SIZE = 90;          // 大正方形边长
+    const CELL_SIZE = BIG_SIZE / 3; // 30px
+    const OFFSET_X = 60;
+    const OFFSET_Y = 50;
+
+    // 六个大正方形的位置 (编号、行、列、计算后的x/y)
+    const bigSquarePositions = [
+        { id: 0, row: 0, col: 1 },
+        { id: 1, row: 1, col: 0 },
+        { id: 2, row: 1, col: 1 },
+        { id: 3, row: 1, col: 2 },
+        { id: 4, row: 1, col: 3 },
+        { id: 5, row: 2, col: 1 }
+    ].map(item => ({
+        ...item,
+        x: OFFSET_X + item.col * BIG_SIZE,
+        y: OFFSET_Y + item.row * BIG_SIZE
+    }));
+
+    // ========== 获取颜色数据的函数（始终从 Cube.data 实时读取） ==========
+    function getColorState() {
+        // 确保 Cube.data 存在且至少有6个子数组，每个长度9
+        const raw = Cube.data || [];
+        const state = [];
+        for (let i = 0; i < 6; i++) {
+            if (raw[i] && raw[i].length === 9) {
+                state[i] = [...raw[i]];  // 拷贝一份，避免后续误操作（但rotation直接修改原数据）
+            } else {
+                console.warn(`Cube.data[${i}] 格式不正确，填充默认0`);
+                state[i] = new Array(9).fill(0);
+            }
+        }
+        return state;
+    }
+
+    // ========== 绘制 ==========
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 获取最新颜色数据
+        const colors = getColorState();
+
+        for (const pos of bigSquarePositions) {
+            const bigColors = colors[pos.id];
+            if (!bigColors) continue;
+
+            const left = pos.x;
+            const top = pos.y;
+
+            // 绘制 3x3 小方格
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const idx = row * 3 + col;
+                    const code = bigColors[idx];
+                    
+                    let fillColor;
+                    switch (code) {
+                        case 0: fillColor = '#f44336'; break;
+                        case 1: fillColor = '#2196f3'; break;
+                        case 2: fillColor = '#ffffff'; break;
+                        case 3: fillColor = '#4caf50'; break;
+                        case 4: fillColor = '#ffeb3b'; break;
+                        case 5: fillColor = '#ff9800'; break;
+                        default: fillColor = '#888';
+                    }
+                    
+                    ctx.fillStyle = fillColor;
+                    ctx.fillRect(
+                        left + col * CELL_SIZE,
+                        top + row * CELL_SIZE,
+                        CELL_SIZE - 0.5,
+                        CELL_SIZE - 0.5
+                    );
+                }
+            }
+
+            // 浅色网格线
+            ctx.save();
+            ctx.strokeStyle = '#4c4e6b';
+            ctx.lineWidth = 0.6;
+            for (let i = 0; i <= 3; i++) {
+                const x = left + i * CELL_SIZE;
+                ctx.beginPath();
+                ctx.moveTo(x, top);
+                ctx.lineTo(x, top + BIG_SIZE);
+                ctx.stroke();
+
+                const y = top + i * CELL_SIZE;
+                ctx.beginPath();
+                ctx.moveTo(left, y);
+                ctx.lineTo(left + BIG_SIZE, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // 黑色粗边框
+            ctx.save();
+            ctx.strokeStyle = '#12121c';
+            ctx.lineWidth = 2.8;
+            ctx.strokeRect(left, top, BIG_SIZE, BIG_SIZE);
+            ctx.restore();
+
+            // 显示编号（便于识别）
+            ctx.save();
+            ctx.font = 'bold 16px "Fira Code", monospace';
+            ctx.fillStyle = '#eaeef9';
+            ctx.shadowColor = '#00000080';
+            ctx.shadowBlur = 6;
+            ctx.fillText(pos.id, left + 6, top + 24);
+            ctx.restore();
+        }
+    }
+
+    // ========== 点击处理 ==========
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const mouseX = (e.clientX - rect.left) * scaleX;
+        const mouseY = (e.clientY - rect.top) * scaleY;
+
+        // 寻找点击的大正方形
+        for (const pos of bigSquarePositions) {
+            const left = pos.x;
+            const top = pos.y;
+            const right = left + BIG_SIZE;
+            const bottom = top + BIG_SIZE;
+
+            if (mouseX >= left && mouseX < right && mouseY >= top && mouseY < bottom) {
+                // 命中大正方形
+                const k = pos.id;
+                console.log(`>>> 点击大正方形 #${k}`);
+
+                // 调用 Cube.rotation(k)
+                if (typeof Cube.rotation === 'function') {
+                    Cube.rotation(k);
+                } else {
+                    console.warn('Cube.rotation 不是函数，请检查 cube.js');
+                }
+
+                // 重新绘制（颜色数据会从 Cube.data 重新获取）
+                draw();
+
+                return; // 只处理第一个命中的大正方形
+            }
+        }
+
+        console.log('点击在空白区域');
+    });
+
+    // ========== 初始化渲染 ==========
+    draw();
+
+    // 将 Cube 挂到 window 便于手动调试（可选）
+    window.Cube = Cube;
+</script>
+</body>
+</html>
